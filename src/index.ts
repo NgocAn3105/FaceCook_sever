@@ -21,7 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api', apiRouter);
-
+app.use('/', (req, res) => {
+    res.send('Hello World');
+});
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(err.stack);
