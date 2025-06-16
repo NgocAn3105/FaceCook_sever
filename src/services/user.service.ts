@@ -57,6 +57,7 @@ export class UserService extends Helpers {
 
     public static async update_password(email: string, password: string): Promise<Response_return> {
         const hashedPassword = await hashPassword(password);
+        console.log(hashPassword);
         const query = await db.query("update users set password=$1 where email=$2", [hashedPassword, email]);
         if (query.rowCount === 0) {
             return {
@@ -155,4 +156,7 @@ export class UserService extends Helpers {
             };
         }
     }
+
+
+
 } 

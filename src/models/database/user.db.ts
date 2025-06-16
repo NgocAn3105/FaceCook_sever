@@ -1,7 +1,10 @@
 import db from './database';
 import { User, HistoryMessage, Response_return } from '../user.model';
 
-type find_user = Pick<User, 'role' | 'status'>
+type find_user = {
+    status: number,
+    role: "admin" | "user";
+};
 type login_user = {
     id: number;
     email: string;
@@ -17,9 +20,12 @@ type refresh_token_data = {
 
 export class Userdatabase {
     static async Find_User_byId(id: number): Promise<find_user | null> {
-        const user_result = await db.query("select role , status from users where id=$1", [id]);
+        const user_result = await db.query("select role  from users where id=$1", [id]);
         if (user_result.rows.length === 0) return null;
-        return user_result.rows[0];
+        return {
+            status: 200,
+            role: user_result.rows[0]
+        };
     }
 
     static async login_user(email: string): Promise<login_user | null> {
