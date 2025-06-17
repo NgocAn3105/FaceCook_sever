@@ -6,4 +6,9 @@ export class feature_controller {
         const post = await feature_service.insert_post(user_id, content);
         res.status(post.status).json(post);
     }
+
+    async get_list_post(req: Request, res: Response) {
+        const posts = await feature_service.get_list_post();
+        res.status(posts.status).json(posts);
+    }
 }
