@@ -11,4 +11,11 @@ export class feature_controller {
         const posts = await feature_service.get_list_post();
         res.status(posts.status).json(posts);
     }
+
+    async delete_post(req: Request, res: Response) {
+        const { post_id } = req.params;
+        const post_id_parse = Number(post_id);
+        const posts = await feature_service.delete_post(post_id_parse);
+        res.status(posts.status).json(posts);
+    }
 }

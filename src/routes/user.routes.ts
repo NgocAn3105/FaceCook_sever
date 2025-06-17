@@ -15,3 +15,4 @@ router.post('/message/send', userController.send_message);
 //post
 router.post('/post/add', featurecontroller.insert_post);
 router.get('/post', featurecontroller.get_list_post);
+router.delete('/post/delete/:post_id', featurecontroller.delete_post);

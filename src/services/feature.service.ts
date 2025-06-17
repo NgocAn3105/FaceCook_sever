@@ -1,5 +1,7 @@
 import { Userdatabase } from "../models/database/user.db";
 import { Response_return } from '../models/user.model';
+import { Response_post } from '../models/post.model';
+
 import { feature_post } from '../models/database/post.db'
 export class feature_service {
 
@@ -24,5 +26,10 @@ export class feature_service {
     public static async get_list_post() {
         let posts = await feature_post.get_list_data();
         return posts;
+    }
+    public static async delete_post(post_id: number): Promise<Response_post> {
+        if (!post_id) return { status: 400, message: "Missing Required" };
+        let post = await feature_post.delete_post(post_id);
+        return post;
     }
 }

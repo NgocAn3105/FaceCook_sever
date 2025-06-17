@@ -34,6 +34,20 @@ export class feature_post {
             }
         }
     }
+    public static async delete_post(post_id: number): Promise<Response_post> {
+        try {
+            await db.query("call delete_post($1);", [post_id]);
+            return {
+                status: 200,
+                message: "Delete Post Success"
+            };
+        } catch (error) {
+            return {
+                status: 500,
+                message: "Error can't delete post"
+            };
+        }
+    }
 
 
 
