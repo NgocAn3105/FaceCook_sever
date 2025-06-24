@@ -16,3 +16,9 @@ router.post('/message/send', userController.send_message);
 router.post('/post/add', featurecontroller.insert_post);
 router.get('/post', featurecontroller.get_list_post);
 router.post('/post/delete', featurecontroller.delete_post);
+
+//comment
+router.get('/post/comment', featurecontroller.get_cmt_father);
+router.post('/post/comment', featurecontroller.insert_cmt);
+router.post('/post/comment/reply', featurecontroller.insert_Replycmt);
+router.get('/post/comment/reply', featurecontroller.get_cmt_reply);

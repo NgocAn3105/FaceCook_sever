@@ -1,10 +1,10 @@
 import db from './database';
 import { Response_return } from '../user.model';
-import { Response_post } from '../post.model';
+import { Response_post, comment } from '../post.model';
 export class feature_post {
     public static async insert_post(user_id: number, content: string): Promise<Response_return> {
         try {
-            let result = await db.query("CALL insert_post($1, $2)", [user_id, content]);
+            await db.query("CALL insert_post($1, $2)", [user_id, content]);
 
             return {
                 status: 200,
@@ -49,6 +49,72 @@ export class feature_post {
         }
     }
 
+    // cmt
+    public static async insert_comment_post(formData: comment): Promise<Response_post> {
+        try {
+            const { post_id, user_id, content } = formData;
+            await db.query("call insert_cmt_post($1,$2,$3)", [post_id, user_id, content]);
+            return {
+                status: 200,
+                message: "Add Comment Success"
+            }
 
+        } catch (error) {
+            return {
+                status: 500,
+                message: `Error : ${error}`
+            }
+        }
+
+    }
+
+    public static async insert_ReplyComment_post(formData: comment): Promise<Response_post> {
+        try {
+            const { post_id, user_id, content, parent_id } = formData;
+            const res = await db.query("call insert_reply_cmt_post($1,$2,$3,$4)", [post_id, user_id, content, parent_id]);
+            return {
+                status: 200,
+                message: "Add Comment Success"
+            }
+
+        } catch (error) {
+            return {
+                status: 500,
+                message: `Error : ${error}`
+            }
+        }
+    }
+
+
+    static async get_cmt_father(): Promise<Response_post> {
+        try {
+            const res = await db.query('select * from get_list_cmt_father()');
+            if (res.rows.length === 0) return { status: 400, message: "Bad Request" };
+            return {
+                status: 200,
+                message: res.rows
+            }
+        } catch (error) {
+            return {
+                status: 500,
+                message: `Error : ${error}`
+            }
+        }
+    }
+    static async get_cmt_reply(): Promise<Response_post> {
+        try {
+            const res = await db.query('select * from get_list_cmt_Reply()');
+            if (res.rows.length === 0) return { status: 400, message: "Bad Request" };
+            return {
+                status: 200,
+                message: res.rows
+            }
+        } catch (error) {
+            return {
+                status: 500,
+                message: `Error : ${error}`
+            }
+        }
+    }
 
 }
