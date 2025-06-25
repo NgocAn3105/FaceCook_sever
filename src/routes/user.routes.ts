@@ -5,12 +5,11 @@ import { feature_controller } from '../controllers/feature.controller';
 export const router = express.Router();
 const userController = new UserController();
 const featurecontroller = new feature_controller();
+//user
 router.post('/login', userController.Login);
 router.post('/update-password', userController.Update_password);
 
 //feature
-router.post('/message/history', userController.message_history);
-router.post('/message/send', userController.send_message);
 
 //post
 router.post('/post/add', featurecontroller.insert_post);

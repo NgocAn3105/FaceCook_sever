@@ -9,6 +9,10 @@ import { Helpers } from '../utils/helpers';
 
 export class UserService extends Helpers {
 
+    public static async register_user(email: string, password: string): Promise<> {
+
+    }
+
     public static async Login_users(email: string, password: string): Promise<Login_return | Response_return> {
         const valid_email = UserService.validateEmail(email);
         if (!valid_email) {
@@ -72,31 +76,7 @@ export class UserService extends Helpers {
     }
 
 
-    public static async message_history_sender(sender_id: number, receiver_id: number): Promise<{ status: number, message: HistoryMessage[] | null | string }> {
-        try {
-            const message_result = await Userdatabase.message_history(sender_id, receiver_id);
-            return { status: 200, message: message_result };
-        } catch (error) {
-            return {
-                status: 500,
-                message: 'Error connect service ' + error
-            }
-        }
 
-    }
-
-    public static async send_message(data: HistoryMessage): Promise<{ status: number, message: HistoryMessage | null | string }> {
-        try {
-            const message_result = await Userdatabase.send_messager(data);
-            if (!message_result) return { status: 404, message: null };
-            return { status: 200, message: message_result };
-        } catch (error) {
-            return {
-                status: 500,
-                message: 'Error connect service ' + error
-            }
-        }
-    }
 
     public static async refresh_token(refresh_token: string): Promise<Login_return | Response_return> {
         try {

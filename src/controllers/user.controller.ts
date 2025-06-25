@@ -21,21 +21,5 @@ export class UserController {
     }
 
 
-    public async message_history(req: Request, res: Response): Promise<Response> {
-        const { id, id_friend } = req.body;
-        const result = await UserService.message_history_sender(id, id_friend);
-        if (result.status === 200) {
-            return res.status(200).json({ response: result });
-        }
-        return res.status(result.status).json({ response: result });
-    }
-    public async send_message(req: Request, res: Response): Promise<Response> {
-        const { data } = req.body;
-        const result = await UserService.send_message(data);
-        if (result.status === 200) {
-            return res.status(200).json({ response: result });
-        }
-        return res.status(result.status).json({ response: result });
-    }
 
 } 
