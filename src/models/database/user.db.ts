@@ -6,20 +6,34 @@ type find_user = {
     status: number,
     role: "admin" | "user";
 };
-type login_user = {
-    id: number;
-    email: string;
-    password: string;
-    role: string;
-}
+
 
 type refresh_token_data = {
     user_id: number;
     refresh_token: string;
     key_public: string;
 }
+type return_user = {
+    status?: number;
+    message: User | string;
+    password?: string;
+}
 
 export class Userdatabase {
+    static async get_users(): Promise<{ status: number, message: User[] | string }> {
+        try {
+            const res = await db.query('select * from get_users()');
+            return { status: 200, message: res.rows };
+
+        } catch (error) {
+            return {
+                status: 500,
+                message: `error system :${error} `
+            }
+        }
+
+    }
+
     static async Find_User_byId(id: number): Promise<find_user | null> {
         const user_result = await db.query("select isadmin from get_users() where id=$1", [id]);
         if (user_result.rows.length === 0) return null;
@@ -33,7 +47,7 @@ export class Userdatabase {
         try {
             const check_user = await db.query('select id from get_users() where email=$1', [email]);
 
-            if (check_user.rows.length === 0) return { status: 400, message: 'This email is already register account !' };
+            if (check_user.rows.length !== 0) return { status: 400, message: 'This email is already register account !' };
 
             await db.query('call insert_user($1,$2)', [email, password]);
 
@@ -49,10 +63,16 @@ export class Userdatabase {
         }
     }
 
-    static async login_user(email: string): Promise<login_user | null> {
-        const user = await db.query("select id, email, password, role from get_users() where email = $1", [email]);
+    static async login_user(email: string): Promise<return_user | null> {
+        const user = await db.query("select * from get_users() where email = $1", [email]);
+        const password_user = (await db.query('select password from users where email=$1', [email])).rows[0]?.password;
         if (user.rows.length === 0) return null;
-        return user.rows[0];
+        return {
+            message: user.rows[0],
+            password: password_user
+        }
+
+
     }
 
     static async save_refresh_token(user_id: number, refresh_token: string, key_public: string): Promise<boolean> {
@@ -76,8 +96,8 @@ export class Userdatabase {
         return result.rows[0];
     }
 
-    static async get_user_by_id(user_id: number): Promise<login_user | null> {
-        const user = await db.query("select id, email, password,isadmin from get_users() where id = $1", [user_id]);
+    static async get_user_by_id(user_id: number): Promise<return_user | null> {
+        const user = await db.query("select * from get_users() where id = $1", [user_id]);
         if (user.rows.length === 0) return null;
         return user.rows[0];
     }

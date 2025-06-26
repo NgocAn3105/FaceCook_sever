@@ -13,6 +13,12 @@ export const comparePassword = async (
     return bcrypt.compare(password, hashedPassword);
 };
 
+export const valid_email = (email: string): boolean => {
+    const EmailRegex = /^[A-Za-z0-9_-]+@[A-Za-z-0-9.-]+\.[A-Za-z]{2,}$/;
+    return EmailRegex.test(email);
+}
+
+
 export const generateRandomString = (length: number): string => {
     return crypto.randomBytes(length).toString('hex');
 };

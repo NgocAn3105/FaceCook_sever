@@ -1,16 +1,32 @@
 import { HistoryMessage, Login_return, Response_return, User } from '../models/user.model';
 import db from '../models/database/database';
-import { comparePassword, hashPassword } from '../utils/crypto';
+import { comparePassword, hashPassword, valid_email } from '../utils/crypto';
 import { generateToken, verifyToken } from '../utils/jwt';
 import dotenv from 'dotenv';
 dotenv.config({ path: './config.env' });
 import { Userdatabase } from '../models/database/user.db';
 import { Helpers } from '../utils/helpers';
+import e from 'express';
+
 
 export class UserService extends Helpers {
 
-    public static async register_user(email: string, password: string): Promise<> {
+    public static async register_user(email: string, password: string): Promise<Response_return> {
 
+        if (!email || !password) return { status: 400, message: "Missing Required" };
+        const regexEmail = valid_email(email);
+        if (regexEmail == false) return { status: 400, message: `Params Wrong format Email ! ${regexEmail}` };
+
+        try {
+            const PasswordHash = await hashPassword(password);
+            const user = await Userdatabase.register_user(email, PasswordHash);
+            return user;
+        } catch (error) {
+            return {
+                status: 500,
+                message: `Services Error : ${error}`
+            }
+        }
     }
 
     public static async Login_users(email: string, password: string): Promise<Login_return | Response_return> {
@@ -23,13 +39,19 @@ export class UserService extends Helpers {
         }
 
         const user = await Userdatabase.login_user(email);
+
         if (!user) {
             return {
                 status: 400,
                 message: 'Invalid email'
             }
         }
-
+        if (!user.password || typeof user.password !== 'string') {
+            return {
+                status: 400,
+                message: `User Pasword wrong ! : ${user.password}`
+            }
+        }
         const validPassword = await comparePassword(password, user.password);
         if (!validPassword) {
             return {
@@ -40,9 +62,14 @@ export class UserService extends Helpers {
 
         const token = generateToken(user, '1d');
         const refreshToken = generateToken(user, '7d');
-        const secret_key = await hashPassword(process.env.JWT_SECRET_PUBLIC || 'default_secret_key' + user.id);
 
-        const saved = await Userdatabase.save_refresh_token(user.id, refreshToken, secret_key);
+        if (typeof user?.message == 'string') {
+            return { status: 400, message: "User is undefined" }
+        }
+        const secret_key = await hashPassword(process.env.JWT_SECRET_PUBLIC || 'default_secret_key' + user.message.id);
+
+        const saved = await Userdatabase.save_refresh_token(user.message.id, refreshToken, secret_key);
+
         if (!saved) {
             return {
                 status: 500,
@@ -78,64 +105,6 @@ export class UserService extends Helpers {
 
 
 
-    public static async refresh_token(refresh_token: string): Promise<Login_return | Response_return> {
-        try {
-            // Verify the refresh token exists in database
-            const token_data = await Userdatabase.verify_refresh_token(refresh_token);
-            if (!token_data) {
-                return {
-                    status: 401,
-                    message: 'Invalid refresh token'
-                };
-            }
-
-            // Verify the token signature and expiration
-            try {
-                verifyToken(refresh_token);
-            } catch (error) {
-                return {
-                    status: 401,
-                    message: 'Refresh token expired'
-                };
-            }
-
-            // Get user data
-            const user = await Userdatabase.get_user_by_id(token_data.user_id);
-            if (!user) {
-                return {
-                    status: 404,
-                    message: 'User not found'
-                };
-            }
-
-            // Generate new tokens
-            const new_access_token = generateToken(user, '1d');
-            const new_refresh_token = generateToken(user, '7d');
-            const new_secret_key = await hashPassword(process.env.JWT_SECRET_PUBLIC || 'default_secret_key' + user.id);
-
-            // Save new refresh token
-            const saved = await Userdatabase.save_refresh_token(user.id, new_refresh_token, new_secret_key);
-            if (!saved) {
-                return {
-                    status: 500,
-                    message: 'Error saving refresh token'
-                };
-            }
-
-            return {
-                status: 200,
-                message: 'Token refreshed successfully',
-                access_token: new_access_token,
-                refresh_token: new_refresh_token,
-                secret_key: new_secret_key
-            };
-        } catch (error) {
-            return {
-                status: 500,
-                message: 'Error refreshing token: ' + error
-            };
-        }
-    }
 
 
 

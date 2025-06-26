@@ -1,5 +1,5 @@
 export interface User {
-    id: string;
+    id: number;
     email: string;
     password: string;
     first_name: string;
@@ -7,8 +7,8 @@ export interface User {
     avatar: string;
     create_at: Date;
     birth: Date;
-    role: string;
-    status: string;
+    isadmin: number;
+    status: number;
 }
 export interface HistoryMessage {
     sender_id: number,
