@@ -1,4 +1,4 @@
-import { HistoryMessage, Login_return, Response_return, User } from '../models/user.model';
+import { HistoryMessage, Login_return, Response_return, User, User_update } from '../models/user.model';
 import db from '../models/database/database';
 import { comparePassword, hashPassword, valid_email } from '../utils/crypto';
 import { generateToken, verifyToken } from '../utils/jwt';
@@ -30,61 +30,50 @@ export class UserService extends Helpers {
     }
 
     public static async Login_users(email: string, password: string): Promise<Login_return | Response_return> {
-        const valid_email = UserService.validateEmail(email);
-        if (!valid_email) {
-            return {
-                status: 400,
-                message: 'Invalid email format'
-            }
+        // Validate email
+        if (!UserService.validateEmail(email)) {
+            return { status: 400, message: 'Invalid email format' };
         }
 
+        // Lấy user theo email
         const user = await Userdatabase.login_user(email);
+        if (!user || typeof user.message === 'string') {
+            return { status: 400, message: 'Invalid email' };
+        }
 
-        if (!user) {
-            return {
-                status: 400,
-                message: 'Invalid email'
-            }
+        // Kiểm tra password hash có hợp lệ không
+        if (typeof user.password !== 'string') {
+            return { status: 400, message: 'User password invalid' };
         }
-        if (!user.password || typeof user.password !== 'string') {
-            return {
-                status: 400,
-                message: `User Pasword wrong ! : ${user.password}`
-            }
-        }
+
+        // So sánh password
         const validPassword = await comparePassword(password, user.password);
         if (!validPassword) {
-            return {
-                status: 400,
-                message: 'Invalid password'
-            }
+            return { status: 400, message: 'Invalid password' };
         }
 
+        // Tạo token và refresh token
         const token = generateToken(user, '1d');
         const refreshToken = generateToken(user, '7d');
 
-        if (typeof user?.message == 'string') {
-            return { status: 400, message: "User is undefined" }
-        }
-        const secret_key = await hashPassword(process.env.JWT_SECRET_PUBLIC || 'default_secret_key' + user.message.id);
-
+        // Tạo secret key và lưu refresh token
+        const secret_key = await hashPassword((process.env.JWT_SECRET_PUBLIC || 'default_secret_key') + user.message.id);
         const saved = await Userdatabase.save_refresh_token(user.message.id, refreshToken, secret_key);
 
         if (!saved) {
-            return {
-                status: 500,
-                message: 'Error saving refresh token'
-            }
+            return { status: 500, message: 'Error saving refresh token' };
         }
 
+        // Trả về response thành công
         return {
             status: 200,
             message: 'Login successfully',
             access_token: token,
             refresh_token: refreshToken,
             secret_key: secret_key
-        }
+        };
     }
+
 
     public static async update_password(email: string, password: string): Promise<Response_return> {
         const hashedPassword = await hashPassword(password);
@@ -100,6 +89,25 @@ export class UserService extends Helpers {
             status: 200,
             message: 'Update password successfully'
         }
+    }
+
+    public static async update_user(formData: User_update): Promise<Response_return> {
+        let { id, first_name, last_name, avatar, birth } = formData;
+
+        if (!id) return { status: 400, message: 'Missing required id!' };
+
+        // Clean param: '' → null
+        first_name = (first_name === '' ? null : first_name);
+        last_name = (last_name === '' ? null : last_name);
+        avatar = (avatar === '' ? null : avatar);
+        birth = (birth === '' ? null : birth);
+
+        const new_formData: User_update = {
+            id, first_name, last_name, avatar, birth
+        };
+
+        const user = await Userdatabase.update_user(new_formData);
+        return user;
     }
 
 

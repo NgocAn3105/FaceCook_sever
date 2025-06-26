@@ -1,15 +1,23 @@
 export interface User {
     id: number;
     email: string;
-    password: string;
+    password?: string;
     first_name: string;
     last_name: string;
     avatar: string;
     create_at: Date;
-    birth: Date;
-    isadmin: number;
-    status: number;
+    birth: string;
+    isadmin?: number;
+    status?: number;
 }
+export interface User_update {
+    id: number;
+    first_name?: string | null;
+    last_name?: string | null;
+    avatar?: string | null;
+    birth?: string | null;
+}
+
 export interface HistoryMessage {
     sender_id: number,
     receiver_id: number,

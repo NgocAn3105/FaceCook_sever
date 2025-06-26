@@ -29,6 +29,11 @@ export class UserController {
         return res.status(users.status).json(users);
     }
 
-
+    public async update_user(req: Request, res: Response): Promise<Response> {
+        const { id, first_name, last_name, avatar, birth } = req.body;
+        const formData = { id, first_name, last_name, avatar, birth }
+        const user = await UserService.update_user(formData);
+        return res.status(user.status).json(user);
+    }
 
 } 

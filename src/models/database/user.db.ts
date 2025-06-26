@@ -1,6 +1,6 @@
 import db from './database';
-import { User, HistoryMessage, Response_return } from '../user.model';
-import e from 'express';
+import { User, User_update, Response_return } from '../user.model';
+
 
 type find_user = {
     status: number,
@@ -102,6 +102,21 @@ export class Userdatabase {
         return user.rows[0];
     }
 
+    static async update_user(formData: User_update): Promise<Response_return> {
+        try {
+            const { id, first_name, last_name, avatar, birth } = formData;
+            await db.query('call update_user($1,$2,$3,$4,$5)', [id, first_name, last_name, avatar, birth]);
+            return {
+                status: 200,
+                message: "Update Success"
+            }
+        } catch (error) {
+            return {
+                status: 500,
+                message: `error system :${error} `
+            }
+        }
+    }
 
 
 
