@@ -1,4 +1,4 @@
-import db from './database';
+import { pool as db } from './database';
 import { User, User_update, Response_return } from '../user.model';
 
 

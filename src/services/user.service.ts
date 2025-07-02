@@ -1,5 +1,5 @@
 import { HistoryMessage, Login_return, Response_return, User, User_update } from '../models/user.model';
-import db from '../models/database/database';
+import { pool as db } from '../models/database/database';
 import { comparePassword, hashPassword, valid_email } from '../utils/crypto';
 import { generateToken, verifyToken } from '../utils/jwt';
 import dotenv from 'dotenv';

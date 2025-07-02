@@ -24,8 +24,16 @@ router.post('/post/delete', featurecontroller.delete_post);
 
 router.get('/post/comment', featurecontroller.get_cmt_father);
 router.post('/post/comment', featurecontroller.insert_cmt);
-
 router.post('/post/comment/reply', featurecontroller.insert_Replycmt);
 router.get('/post/comment/reply', featurecontroller.get_cmt_reply);
+
+//like
+router.post('/post/like', featurecontroller.add_like_post);
+router.post('/post/comment/like', featurecontroller.add_like_cmt);
+router.get('/post/like/:post_id', featurecontroller.get_post_like);
+router.get('/post/comment/like/:comment_id', featurecontroller.get_cmt_like);
+//update like
+router.post('/post/like-update', featurecontroller.update_like);
+router.post('/post/comment/like-update', featurecontroller.update_like);
 
 

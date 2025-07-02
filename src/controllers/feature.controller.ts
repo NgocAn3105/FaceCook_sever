@@ -42,5 +42,40 @@ export class feature_controller {
         const cmt = await feature_service.get_cmt_reply();
         res.status(cmt.status).json(cmt);
     }
+    ///like
+    async add_like_post(req: Request, res: Response) {
+        const { post_id, user_id, typed } = req.body;
+        const formData = { post_id, user_id, typed };
+        const like = await feature_service.add_like_post(formData);
+        res.status(like.status).json(like);
 
+    }
+
+    async add_like_cmt(req: Request, res: Response) {
+        const { comment_id, user_id, typed } = req.body;
+        const formData = { comment_id, user_id, typed };
+        const like = await feature_service.add_like_post(formData);
+        res.status(like.status).json(like);
+
+    }
+    async get_cmt_like(req: Request, res: Response) {
+        const { comment_id } = req.params;
+        const like = await feature_service.get_cmt_like(Number(comment_id));
+        res.status(like.status).json(like);
+    }
+    async get_post_like(req: Request, res: Response) {
+        const { post_id } = req.params;
+        const like = await feature_service.get_post_like(Number(post_id));
+        res.status(like.status).json(like);
+    }
+
+    async update_like(req: Request, res: Response) {
+        const { post_id, comment_id, user_id, typed } = req.body;
+        const formData = {
+            post_id, comment_id, user_id, typed
+        }
+        const like = await feature_service.update_like(formData);
+        res.status(like.status).json(like);
+
+    }
 }

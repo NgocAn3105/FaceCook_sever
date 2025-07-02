@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, Client } from 'pg';
 import dotenv from 'dotenv';
 
 // Load biến môi trường từ config.env
@@ -14,5 +14,11 @@ const pool = new Pool({
         rejectUnauthorized: false
     }
 });
+const client = new Client({
+    connectionString: `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}/${process.env.POSTGRES_DB}`,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
-export default pool;
+export { pool, client }

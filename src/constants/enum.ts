@@ -67,3 +67,10 @@ export enum ErrorCode {
     INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR'
 }
 
+export enum Like_enum {
+    like = 'like',
+    haha = 'haha',
+    love = 'love',
+    sad = 'sad',
+    angry = 'angry'
+}
