@@ -118,6 +118,50 @@ export class Userdatabase {
         }
     }
 
+    static async friendship_list(user_id: number): Promise<Response_return> {
+        try {
+            const res = await db.query(`select * from get_friend_by_userId($1)`, [user_id]);
+            if (res.rows.length === 0) return { status: 400, message: null };
+            return {
+                status: 200,
+                message: res.rows
+            }
 
+        } catch (error) {
+            return {
+                status: 500,
+                message: `error system :${error} `
+            }
+        }
+    }
+    static async add_friend(user_id: number, friend_id: number): Promise<Response_return> {
+        try {
+            const friend = await this.friendship_list(user_id);
+            if (!Array.isArray(friend)) return { status: 404, message: "can not add friend !" };
+            const existFriend = friend.find((item) => item.id == friend_id);
+            if (existFriend) {
+                return { status: 400, message: "You have already added this user!" };
+            }
+            await db.query('CALL add_friend($1, $2)', [user_id, friend_id]);
+            return { status: 200, message: "Add friend success" };
+        } catch (error) {
+            return {
+                status: 500,
+                message: `error system :${error} `
+            }
+        }
+    }
+
+    static async accept_friend(user_id: number, friend_id: number): Promise<Response_return> {
+        try {
+            await db.query('call accept_friend($1,$2)', [user_id, friend_id]);
+            return { status: 200, message: "accepted friend success" };
+        } catch (error) {
+            return {
+                status: 500,
+                message: `error system :${error} `
+            }
+        }
+    }
 
 }

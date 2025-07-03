@@ -36,4 +36,21 @@ export class UserController {
         return res.status(user.status).json(user);
     }
 
+    public async get_friends(req: Request, res: Response): Promise<Response> {
+        const { user_id } = req.params;
+        const friends = await UserService.get_friends(Number(user_id));
+        return res.status(friends.status).json(friends);
+    }
+    public async add_friend(req: Request, res: Response): Promise<Response> {
+        const { user_id, friend_id } = req.body;
+
+        const friend = await UserService.add_friend(user_id, friend_id);
+        return res.status(friend.status).json(friend);
+    }
+
+    public async accept_friend(req: Request, res: Response): Promise<Response> {
+        const { user_id, friend_id } = req.body;
+        const friend = await UserService.accept_friend(user_id, friend_id);
+        return res.status(friend.status).json(friend);
+    }
 } 

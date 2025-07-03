@@ -13,6 +13,15 @@ router.post('/update-password', userController.Update_password);
 router.post('/update', userController.update_user);
 router.get('/', userController.get_users);
 
+//friends
+router.get('/friend/:user_id', userController.get_friends);
+//khi user A ket ban voi user B -> user A = waitting va user B = pending
+router.post('/friend/add', userController.add_friend);
+//dong y ket ban khi user B (la user co status = pending) moi co quyen chap nhan va dung endpoint nay
+router.post('/friend/accept', userController.accept_friend);
+
+
+
 //feature
 
 //post

@@ -111,9 +111,42 @@ export class UserService extends Helpers {
     }
 
 
+    public static async get_friends(user_id: number): Promise<Response_return> {
+        if (!user_id) return { status: 400, message: "Missing Required !" };
+        const user = await Userdatabase.Find_User_byId(user_id);
+        if (user?.status == 200) {
+            const friends = await Userdatabase.friendship_list(user_id);
+            return friends;
+        }
+        return {
+            status: 404,
+            message: `Not Found User ${user_id} ! `
+        }
+    }
+    private static async friend(user_id: number, friend_id: number): Promise<Response_return> {
+        if (!user_id || !friend_id) return { status: 400, message: "Missing Required !" };
+        const user = await Userdatabase.Find_User_byId(user_id);
+        const friend = await Userdatabase.Find_User_byId(friend_id);
+        if (user?.status != 200 && friend?.status != 200) return { status: 400, message: "Not found user or friend user !" };
+        return { status: 200, message: null };
+    }
+    public static async add_friend(user_id: number, friend_id: number): Promise<Response_return> {
+        const check = await this.friend(user_id, friend_id);
+        if (check.status == 200) {
+            const addfriend = await Userdatabase.add_friend(user_id, friend_id);
+            return addfriend;
+        }
+        return check;
+    }
 
-
-
+    public static async accept_friend(user_id: number, friend_id: number): Promise<Response_return> {
+        const check = await this.friend(user_id, friend_id);
+        if (check.status == 200) {
+            const acceptfriend = await Userdatabase.accept_friend(user_id, friend_id);
+            return acceptfriend;
+        }
+        return check;
+    }
 
 
 } 

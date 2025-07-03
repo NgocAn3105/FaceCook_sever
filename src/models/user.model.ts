@@ -29,7 +29,7 @@ export interface HistoryMessage {
 
 export interface Response_return {
     status: number;
-    message: string | null;
+    message: string | null | User[];
 }
 export interface Login_return {
     status: number;
