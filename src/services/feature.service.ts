@@ -24,9 +24,32 @@ export class feature_service {
         let post = await feature_post.insert_post(user_id, content);
         return post;
     }
+    public static async insert_post_img(user_id: number, content?: string, image?: string): Promise<Response_return> {
+        if (!user_id || !content) {
+            return {
+                message: "User id or content is required",
+                status: 400
+            }
+        }
+        const check_user = await Userdatabase.Find_User_byId(user_id);
+        if (!check_user) {
+            return {
+                message: "User not found",
+                status: 404
+            }
+        }
+        let post = await feature_post.insert_post_img(user_id, content, image);
+        return post;
+    }
 
-    public static async get_list_post() {
-        let posts = await feature_post.get_list_data();
+    public static async get_list_post(user_id: number) {
+        if (!user_id) {
+            return {
+                message: "Missing required",
+                status: 400
+            }
+        }
+        let posts = await feature_post.get_list_data(user_id);
         return posts;
     }
     public static async delete_post(post_id: number): Promise<Response_post> {
@@ -133,4 +156,5 @@ export class feature_service {
         const res = await feature_post.update_post_like(formDataofPost);
         return res;
     }
+
 }

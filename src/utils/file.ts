@@ -15,7 +15,7 @@ export const allowedDocTypes = [
 // Cấu hình multer để lưu file
 const storage = multer.diskStorage({
     destination: (req: Request, file: Express.Multer.File, cb) => {
-        let uploadPath = 'uploads/';
+        let uploadPath = 'src/uploads/';
 
         if (allowedImageTypes.includes(file.mimetype)) {
             uploadPath += 'images/';
@@ -45,7 +45,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 };
 
 // Cấu hình upload
-export const upload = multer({
+export const uploadPost = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
@@ -53,6 +53,13 @@ export const upload = multer({
     }
 });
 
+export const uploadAvatar = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB
+    }
+});
 // Xóa file
 export const deleteFile = (filePath: string): Promise<void> => {
     return new Promise((resolve, reject) => {

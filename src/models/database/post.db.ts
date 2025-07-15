@@ -1,4 +1,4 @@
-import { pool as db, client } from './database';
+import { pool as db } from './database';
 import { Response_return } from '../user.model';
 import { Call_list_like, Like, Response_post, comment } from '../post.model';
 import { start } from 'repl';
@@ -19,11 +19,46 @@ export class feature_post {
         }
     }
 
-    public static async get_list_data(): Promise<Response_post> {
+    public static async insert_post_img(user_id: number, content?: string, image?: string): Promise<Response_return> {
         try {
-            let result = await db.query("select * from get_list_post() where status != 0");
-            if (result.rows.length === 0) return { status: 404, message: null }
+            await db.query(`insert into posts(user_id,content,image) values($1,$2,$3)`, [user_id, content, image]);
 
+            return {
+                status: 200,
+                message: "Thêm bài viết thành công",
+            }
+        } catch (error) {
+            return {
+                status: 500,
+                message: "Thêm bài viết thất bại",
+            }
+        }
+    }
+
+    public static async get_list_data(user_id: number): Promise<Response_post> {
+        try {
+            let result = await db.query(`SELECT 
+                                        p.*, 
+                                        CONCAT(u.first_name, ' ', u.last_name) AS user_name, 
+                                        u.avatar,
+                                        COALESCE(l.like_count, 0) AS like_count
+                                        FROM posts p
+                                        JOIN users u ON p.user_id = u.id
+                                        LEFT JOIN (
+                                        SELECT post_id, COUNT(id) AS like_count
+                                        FROM post_likes
+                                        GROUP BY post_id
+                                        ) l ON l.post_id = p.id
+                                        WHERE p.status != 0 
+                                        AND (
+                                            p.user_id = $1
+                                            OR p.user_id IN (
+                                            SELECT friend_id FROM friendships WHERE user_id = $1
+                                            )
+                                        )
+                                        ORDER BY p.created_at DESC;
+                                        `, [user_id]);
+            if (result.rows.length === 0) return { status: 404, message: null }
             return {
                 status: 200,
                 message: result.rows
@@ -31,7 +66,7 @@ export class feature_post {
         } catch (error) {
             return {
                 status: 500,
-                message: "Can't get data"
+                message: `Can't get data ${error} `
             }
         }
     }
@@ -183,15 +218,15 @@ export class feature_post {
     static async get_cmt_like(comment_id: number): Promise<Call_list_like> {
         try {
             const res = await this.get_cmt_post_like(comment_id);
-
+            let count;
             if (res == null) return { status: 400, message: `Not Found Like this comment  ${comment_id} !` };
             if (Array.isArray(res)) {
                 if (res.length === 0) return { status: 404, message: `Not Found Like this comment  ${comment_id} ! please add more like` }
-                const count = res.length;
+                count = res.length;
             }
             return {
                 status: 200,
-                count: 1,
+                count: count,
                 message: res
             }
 
@@ -233,7 +268,14 @@ export class feature_post {
                 const cmt = await db.query('select * from get_cmt_like() where comment_id = $1 and typed is not null', [comment_id]);
                 res = cmt.rows;
             } else {
-                const post = await db.query('select * from get_post_like() where post_id = $1 and typed is not null', [post_id]);
+                const post = await db.query(`SELECT 
+                                            p.post_id, p.created_at, p.user_id ,p.status, 
+                                            COUNT(pl.id) AS like_count
+                                            FROM get_post_like() p
+                                            LEFT JOIN post_likes pl ON p.post_id = pl.post_id
+                                            where p.status =1 and p.post_id=$1
+                                            GROUP BY p.post_id, p.created_at, p.user_id ,p.status
+                                            ORDER BY p.created_at DESC;`, [post_id]);
                 res = post.rows;
             }
             return res;

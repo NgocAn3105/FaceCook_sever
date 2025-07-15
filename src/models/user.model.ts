@@ -1,3 +1,6 @@
+import { JwtPayload } from "jsonwebtoken";
+import { Request } from 'express';
+
 export interface User {
     id: number;
     email: string;
@@ -18,18 +21,18 @@ export interface User_update {
     birth?: string | null;
 }
 
-export interface HistoryMessage {
+export interface Message {
     sender_id: number,
     receiver_id: number,
     content: string,
-    created_at: Date;
-    status: string;
+    created_at?: Date;
+    status?: string;
 }
 
 
 export interface Response_return {
     status: number;
-    message: string | null | User[];
+    message: string | null | User[] | User;
 }
 export interface Login_return {
     status: number;
@@ -37,4 +40,8 @@ export interface Login_return {
     access_token: string;
     refresh_token: string;
     secret_key: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+    user?: User | string | JwtPayload;
 }
